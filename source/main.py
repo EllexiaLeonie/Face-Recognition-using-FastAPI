@@ -7,7 +7,7 @@ from tempfile import NamedTemporaryFile
 from fastapi.responses import HTMLResponse
 app = FastAPI(title='Face Recognition')
     
-@app.post("/register_faces/")
+@app.post("/v1/register_faces/")
 async def registration_face(person_name: str = Form(...), files: List[UploadFile] = File(...)):
     try:
         registration = FaceRegistration()
@@ -16,7 +16,7 @@ async def registration_face(person_name: str = Form(...), files: List[UploadFile
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/recognize_face/")
+@app.post("/v1/recognize_face/")
 async def recognize_faces(upload_image: UploadFile = File(...)):
     try:
         with NamedTemporaryFile(delete=False, suffix='.jpg') as temp_image:
