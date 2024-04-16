@@ -12,8 +12,12 @@ This project implements a face recognition system using FastAPI. It allows users
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/EllexiaLeonie/Face-Recognition-using-FastAPI.git
+
+2. **Go to the directory**:
+   ```bash
+   cd Face-Recognition-using-FastAPI
    
-2. **Install the dependencies**:
+3. **Install the dependencies**:
    ```bash
    pip install -r requirements.txt
    
