@@ -4,7 +4,6 @@ torch
 opencv-python
 ultralytics
 numpy
-gunicorn
 facenet_pytorch
 pydantic
 typing
