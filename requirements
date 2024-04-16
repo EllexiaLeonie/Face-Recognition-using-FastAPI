@@ -4,6 +4,5 @@ torch
 opencv-python
 ultralytics
 numpy
-facenet_pytorch
 pydantic
 typing
