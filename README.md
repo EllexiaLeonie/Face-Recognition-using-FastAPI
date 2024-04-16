@@ -1,11 +1,11 @@
 # Face Recognition using FastAPI
 
-This project implements a face recognition system using FastAPI. It allows users to register their faces and login with their faces.
+This project implements a face recognition system using FastAPI. It allows users to register their faces and recognize with their faces.
 
 ## Features
 
 - User registration: Users can register their faces by providing their names and uploading images of their faces.
-- User login: Users can log in by uploading image of their faces. The system will recognize whether the face has been registered or not. 
+- User recognizer/ login: Users can log in by uploading image of their faces. The system will recognize whether the face has been registered or not. 
 
 ## Installation
 
@@ -20,16 +20,16 @@ This project implements a face recognition system using FastAPI. It allows users
 
 1. Start the FastAPI server:
    uvicorn main:app --reload
-
-   
+ 
 2. Open your web browser and go to `http://localhost:8000` to access the API documentation (Swagger UI).
+   add "/docs" to the last url (http://localhost:8000/docs)
 
-3. Follow the API documentation to perform user registration and login.
+3. Click 'Try it out' to try the system
 
 ## Endpoints
 
-- `/register`: Endpoint for user registration.
-- `/recognize`: Endpoint for login/ face recognition.
+- `/v1/register`: Endpoint for user registration.
+- `/v1/recognize`: Endpoint for login/ face recognize.
 
 
 
