@@ -19,7 +19,7 @@ This project implements a face recognition system using FastAPI. It allows users
    
 3. **Install the dependencies**:
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements
    
 
 ## Usage
