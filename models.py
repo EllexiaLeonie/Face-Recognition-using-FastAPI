@@ -47,39 +47,49 @@ class FaceRecognition:
     def registration_faces(self, person_name, photos):
         # Loop melalui setiap nama file dan membaca gambar
         images = []
-        for file in photos:
-            contents = file.file.read()
-            nparr = np.fromstring(contents, np.uint8)
-            image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            if image is not None:
-                images.append(image)
-            else:
-                print(f"Failed to read image: {file.filename}")
-                
-        count = 0
+        for file_path in photos:  # Ubah variabel 'file' menjadi 'file_path'
+            try:
+                image = cv2.imread(file_path)  # Baca gambar dari path file
+                if image is not None:
+                    images.append(image)
+                else:
+                    print(f"Failed to read image: {file_path}")
+            except Exception as e:
+                print(f"Error reading image {file_path}: {e}")
+        
+        # Menginisialisasi list embedding untuk setiap folder/orang
+        embeddings_per_person = []
         
         # Loop melalui gambar-gambar
         for image in images:
             # Proses pengenalan wajah pada gambar yang diberikan
             cropped_faces = self.face_crop_extractor(image)
             for face in cropped_faces:
-                # Menentukan path file menggunakan nama orang dan nomor gambar
-                # Increment count
-                count += 1
-                # Sesuaikan tempat penyimpanan
-                file_name_path = "cropped_faces\{}_{}.jpg".format(person_name, count)
-                # Menyimpan gambar dengan nama yang telah ditentukan
-                cv2.imwrite(file_name_path, face)
                 # Mendapatkan embedding wajah
                 embed = self.get_face_embedding(face)
                 if embed is not None:
-                    # Menambahkan embedding baru ke dalam list
-                    self.embedding_list = np.concatenate((self.embedding_list, embed.reshape(1, -1)), axis=0)
-                    self.name_list.append(file_name_path.split('\\')[-1].split('.')[0])  # Menyimpan nama orang ke dalam list
+                    # Menambahkan embedding ke dalam list embedding per orang
+                    embeddings_per_person.append(embed)
                 else:
                     print("Face not found")        
+        
+        # Menghitung rata-rata embedding untuk setiap folder/orang
+        if embeddings_per_person:
+            average_embedding = np.mean(embeddings_per_person, axis=0)
+            # Jika self.embedding_list belum terinisialisasi, inisialisasikan dengan average_embedding
+            if len(self.embedding_list) == 0:
+                self.embedding_list = average_embedding.reshape(1, -1)
+            else:
+                # Pastikan kedua array memiliki jumlah dimensi yang sama sebelum menggabungkannya
+                if average_embedding.ndim == 1:
+                    average_embedding = average_embedding.reshape(1, -1)
+                # Simpan embedding rata-rata ke dalam list embedding utama
+                self.embedding_list = np.concatenate((self.embedding_list, average_embedding), axis=0)
+            # Menyimpan nama folder/orang ke dalam list nama
+            self.name_list.append(person_name)
+
         # Simpan data yang telah diperbarui ke dalam file
-        torch.save((self.embedding_list, self.name_list), "weights/face_data.pt")
+        torch.save((self.embedding_list, self.name_list), "weights/face_data.pt") 
 
     def recognize_faces(self, image):
         image_to_test = cv2.imread(image)
