@@ -29,7 +29,7 @@ This project implements a face recognition system using FastAPI. It allows users
    uvicorn main:app --reload
    
 2. **Access API Documentation**: <br>
-Open your web browser and go to http://localhost:8000/docs to access the API documentation (Swagger UI).
+Open your web browser and go to http://127.0.0.1:8000/docs to access the API documentation (Swagger UI).
 
 3. **Try the System**: <br>
 Click 'Try it out' to interact with the endpoints and test the system.
