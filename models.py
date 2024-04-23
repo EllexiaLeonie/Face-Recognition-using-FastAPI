@@ -47,15 +47,14 @@ class FaceRecognition:
     def registration_faces(self, person_name, photos):
         # Loop melalui setiap nama file dan membaca gambar
         images = []
-        for file_path in photos:  # Ubah variabel 'file' menjadi 'file_path'
-            try:
-                image = cv2.imread(file_path)  # Baca gambar dari path file
-                if image is not None:
-                    images.append(image)
-                else:
-                    print(f"Failed to read image: {file_path}")
-            except Exception as e:
-                print(f"Error reading image {file_path}: {e}")
+        for file in photos:
+            contents = file.file.read()
+            nparr = np.fromstring(contents, np.uint8)
+            image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            if image is not None:
+                images.append(image)
+            else:
+                print(f"Failed to read image: {file.filename}")
         
         # Menginisialisasi list embedding untuk setiap folder/orang
         embeddings_per_person = []
