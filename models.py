@@ -10,8 +10,8 @@ import numpy as np
 
 class FaceRecognition:
     def __init__(self):
-        self.model_face = YOLO("weights/yolov8n-face.pt")
-        self.facenet_model = InceptionResnetV1(pretrained='vggface2').eval()
+        self.model_face = YOLO("weights/yolov8n-face.pt").cuda()
+        self.facenet_model = InceptionResnetV1(pretrained='vggface2').eval().cuda()
         face_pt = torch.load("weights/face_data.pt")
         self.embedding_list = face_pt[0]
         self.name_list = face_pt[1]
@@ -22,14 +22,14 @@ class FaceRecognition:
         image = transforms.functional.resize(image, (160, 160))
         image = transforms.functional.to_tensor(image).float()
         image = (image - 0.5) / 0.5  # Normalizing image to range [-1, 1]
-        image = image.unsqueeze(0)
+        image = image.unsqueeze(0).to(torch.device('cuda'))
         with torch.no_grad():
             embedding = self.facenet_model(image)
-        return embedding.squeeze().numpy()
+        return embedding.squeeze().cpu().numpy()
     
     def face_crop_extractor(self, image):
         # Detect face and crop
-        faces = self.model_face.predict(image)
+        faces = self.model_face.predict(image, verbose=False)
     
         cropped_faces = []  # List to store cropped faces
         for r in faces:
@@ -47,14 +47,32 @@ class FaceRecognition:
     def registration_faces(self, person_name, photos):
         # Loop melalui setiap nama file dan membaca gambar
         images = []
-        for file in photos:
-            contents = file.file.read()
-            nparr = np.fromstring(contents, np.uint8)
-            image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            if image is not None:
-                images.append(image)
-            else:
-                print(f"Failed to read image: {file.filename}")
+        
+        if isinstance(photos, str):
+            cap = cv2.VideoCapture(photos)
+            
+            success = cap.grab() # get the next frame
+            fno = 0
+            
+            while success:
+                if fno % 10 == 0:
+                    _, img = cap.retrieve()
+                    images.append(img)
+                # read next frame
+                success = cap.grab()
+                fno += 1
+                
+            print(f'got {len(images)} images')
+            
+        else:
+            for file in photos:
+                contents = file.file.read()
+                nparr = np.fromstring(contents, np.uint8)
+                image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                if image is not None:
+                    images.append(image)
+                else:
+                    print(f"Failed to read image: {file.filename}")
         
         # Menginisialisasi list embedding untuk setiap folder/orang
         embeddings_per_person = []
@@ -89,6 +107,8 @@ class FaceRecognition:
 
         # Simpan data yang telah diperbarui ke dalam file
         torch.save((self.embedding_list, self.name_list), "weights/face_data.pt") 
+        
+        return 'User registered successfully'
 
     def recognize_faces(self, image):
         image_to_test = cv2.imread(image)
@@ -117,7 +137,16 @@ class FaceRecognition:
                 print(f"Matched! {self.name_list[idx_min]}")
                 result.append(self.name_list[idx_min])
             else:
-                print("No face found! Please register your Face.")
+                return "No face found! Please register your Face."
+                
         return result
+    
+    def recognize_face(self, image):
+        ret = self.recognize_faces(image)
+        
+        if "No face found!" in ret:
+            return ret
+        else:
+            return f'Hi {ret[0]}!'
 
         
